@@ -1,18 +1,28 @@
-version: '2'
+version: "3.6"
+networks:
+  foundry:
+    external: true
+    name: "foundry"
+volumes:
+  foundry-data:
+    external: false
+    name: foundry-data
 services:
   factorio:
-    build:
-      context: .
-      args:
+    #build:
+    #  context: .
+    #  args:
         # Check buildinfo.json for supported versions and SHAs
         # https://github.com/factoriotools/factorio-docker/blob/master/buildinfo.json
-        - VERSION=1.1.107
-        - SHA256=5cf3821464c447d342b8859e7af710c33066b909ee7a4fc3efa92f9dbe0dba81
+    #    - VERSION=1.1.107
+    #    - SHA256=5cf3821464c447d342b8859e7af710c33066b909ee7a4fc3efa92f9dbe0dba81
     ports:
       - "34197:34197/udp"
-      - "27015:27015/tcp"
     volumes:
-      - /opt/factorio:/factorio
+      - factorio-data:/factorio
+    networks:
+      - foundry
+    restart: "unless-stopped"
 #    environment:
 #      - PUID=1000
 #      - PGID=1000
