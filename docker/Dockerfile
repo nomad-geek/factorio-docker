@@ -8,9 +8,19 @@ ARG PUID=845
 ARG PGID=845
 ARG BOX64_VERSION=v0.2.4
 
+# optionally utilize a built-in map-gen-preset (see data/base/prototypes/map-gen-presets
+# if this is used, the preset will be used over any .json files supplied
+# vanilla factorio provides the following presets:
+# rich-resources, marathon, death-world, death-world-marathon, rail-world, ribbon-world, island
+# a modded factorio example for using this:
+# space-exploration
+ARG PRESET
+
 # version checksum of the archive to download
 ARG VERSION
 ARG SHA256
+
+LABEL factorio.version=${VERSION}
 
 # number of retries that curl will use when pulling the headless server tarball
 ARG CURL_RETRIES=8
@@ -20,6 +30,7 @@ ENV PORT=34197 \
     VERSION=${VERSION} \
     SHA256=${SHA256} \
     SAVES=/factorio/saves \
+    PRESET="$PRESET" \
     CONFIG=/factorio/config \
     MODS=/factorio/mods \
     SCENARIOS=/factorio/scenarios \
@@ -40,7 +51,7 @@ RUN set -ox pipefail \
     && archive="/tmp/factorio_headless_x64_$VERSION.tar.xz" \
     && mkdir -p /opt /factorio \
     && apt-get -q update \
-    && DEBIAN_FRONTEND=noninteractive apt-get -qy install ca-certificates curl jq pwgen xz-utils procps --no-install-recommends \
+    && DEBIAN_FRONTEND=noninteractive apt-get -qy install ca-certificates curl jq pwgen xz-utils procps gettext-base --no-install-recommends \
     && curl -sSL "https://www.factorio.com/get-download/$VERSION/headless/linux64" -o "$archive" --retry $CURL_RETRIES\
     && echo "$SHA256  $archive" | sha256sum -c \
     || (sha256sum "$archive" && file "$archive" && exit 1) \
